@@ -38,9 +38,10 @@ function useSearch() {
 }
 
 function App() {
+  const [sort, setSort] = useState(false)
   const [search, updateSearch, error] = useSearch()
 
-  const {movies, loading ,getMovies} = useMovies({search})
+  const {movies, loading ,getMovies} = useMovies({search, sort})
  
 
   const handleSubmit = (event) => {
@@ -53,6 +54,9 @@ function App() {
     updateSearch(event.target.value)
   }
   
+  const handleSort = ()=>{
+    setSort(!sort)
+  }
  
 
  
@@ -68,6 +72,8 @@ function App() {
           }}
           onChange = {handleChange} name={search}  
           placeholder='Avenger, Pirates of caribbean ...'/>
+
+          <input type='checkbox' onChange={handleSort} checked = {sort} />
           <button >Enviar</button>
          </form>
          {error && <p style={{color: 'red'}} className='error'>{error}</p>}
