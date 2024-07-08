@@ -46,7 +46,7 @@ function App() {
 
   const handleSubmit = (event) => {
     event.preventDefault()
-    getMovies()
+    getMovies({search})
 
   }
 
@@ -81,7 +81,7 @@ function App() {
     
     <main>
     {
-      loading ? <p>cargando ...</p>: null
+      loading ? <p>cargando ...</p> : null
     }
     <Movies movies={movies}/>
      
