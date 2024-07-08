@@ -1,38 +1,30 @@
 import './App.css'
-import {  useEffect, useState } from 'react'
+import {  useEffect, useState, useRef } from 'react'
 import { Movies } from './components/Movies.jsx'
 import { useMovies } from './hooks/useMovies.js'
 
-
-
-function App() {
-  const {movies} = useMovies()
-  const [query,setQuery] = useState('')
+function useSearch() {
+  const [search, updateSearch] = useState('')
   const [error, setError] = useState(null)
+  const isFirstInput = useRef(true)
 
-  const handleChange = (event) => {
-    const newQuery= event.target.value
-    if(newQuery.startsWith(' ')) return 
-    setQuery(event.target.value)
-  }
-  
-  const handleSubmit = (event) => {
-    event.preventDefault()
-    console.log({query})
-
-  }
 
   useEffect(()=>{
-    
-    if (query == ''){
+
+    if (isFirstInput.current) {
+      isFirstInput.current = search ==  ''
+      return
+    }
+
+    if (search == ''){
       setError('No se puede buscar una pelicula vacia')
       return
     }
-    if (query.match(/^\d+$/)){
+    if (search.match(/^\d+$/)){
       setError('No se puede buscar una pelicula con un numero')
       return
     }
-    if (query.length < 3){
+    if (search.length < 3){
       setError('La busqueda debe tener al menos 3 caracteres')
       return
     }
@@ -40,7 +32,30 @@ function App() {
 
     setError(null)
 
-  },[query])
+  },[search])
+
+  return [search, updateSearch, error]
+}
+
+function App() {
+  const [search, updateSearch, error] = useSearch()
+
+  const {movies, loading ,getMovies} = useMovies({search})
+ 
+
+  const handleSubmit = (event) => {
+    event.preventDefault()
+    getMovies()
+
+  }
+
+  const handleChange = (event) => {
+    updateSearch(event.target.value)
+  }
+  
+ 
+
+ 
 
   return (
     <div className='page'>
@@ -49,16 +64,19 @@ function App() {
          <form className='form' onSubmit={handleSubmit}>
           
           <input style = {{
-            border: '1px solid transparent', borderColor:error ? 'red':'transparent'
+            border: '1.5px solid transparent', borderColor: error ? 'red':'transparent'
           }}
-          onChange = {handleChange} name={query}  placeholder='Avenger, Pirates of caribbean ...'/>
+          onChange = {handleChange} name={search}  
+          placeholder='Avenger, Pirates of caribbean ...'/>
           <button >Enviar</button>
          </form>
          {error && <p style={{color: 'red'}} className='error'>{error}</p>}
     </header>
     
     <main>
-    
+    {
+      loading ? <p>cargando ...</p>: null
+    }
     <Movies movies={movies}/>
      
     </main>
